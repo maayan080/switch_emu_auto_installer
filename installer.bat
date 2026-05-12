@@ -6,7 +6,7 @@ setlocal enabledelayedexpansion
 ::  Repo: https://github.com/maayan080/switch_emu_auto_installer
 :: ============================================================
 
-set "REPO_URL=https://raw.githubusercontent.com/maayan080/switch_emu_auto_installer/main"
+set "RELEASE_URL=https://github.com/maayan080/switch_emu_auto_installer/releases/download/v0.1"
 set "YUZU_DIR=%APPDATA%\yuzu"
 set "KEYS_DIR=%APPDATA%\yuzu\keys"
 set "FIRMWARE_DIR=%LOCALAPPDATA%\yuzu\nand\system\Contents\registered"
@@ -34,39 +34,41 @@ mkdir "%FIRMWARE_DIR%"   2>nul
 echo  [3/7] Downloading files from GitHub...
 
 echo    ^> yuzu.zip
-curl -L --progress-bar -o "%TEMP_DIR%\yuzu.zip" "%REPO_URL%/yuzu.zip"
+curl -L --progress-bar -o "%TEMP_DIR%\yuzu.zip" "%RELEASE_URL%/yuzu.zip"
 if errorlevel 1 ( echo. & echo  [ERROR] Failed to download yuzu.zip & echo  Check your internet connection or that the file exists in the repo. & pause & exit /b 1 )
 
 echo    ^> firmware.zip
-curl -L --progress-bar -o "%TEMP_DIR%\firmware.zip" "%REPO_URL%/firmware.zip"
+curl -L --progress-bar -o "%TEMP_DIR%\firmware.zip" "%RELEASE_URL%/firmware.zip"
 if errorlevel 1 ( echo. & echo  [ERROR] Failed to download firmware.zip & pause & exit /b 1 )
 
 echo    ^> prod.keys
-curl -L --progress-bar -o "%KEYS_DIR%\prod.keys" "%REPO_URL%/prod.keys"
+curl -L --progress-bar -o "%KEYS_DIR%\prod.keys" "%RELEASE_URL%/prod.keys"
 if errorlevel 1 ( echo. & echo  [ERROR] Failed to download prod.keys & pause & exit /b 1 )
 
 echo    ^> title.keys
-curl -L --progress-bar -o "%KEYS_DIR%\title.keys" "%REPO_URL%/title.keys"
+curl -L --progress-bar -o "%KEYS_DIR%\title.keys" "%RELEASE_URL%/title.keys"
 if errorlevel 1 ( echo. & echo  [ERROR] Failed to download title.keys & pause & exit /b 1 )
 
 :: Extract Yuzu
 echo  [4/7] Extracting Yuzu...
-tar -xf "%TEMP_DIR%\yuzu.zip" -C "%YUZU_DIR%"
+tar -xf "%TEMP_DIR%\yuzu.zip" -C "%TEMP_DIR%"
 if errorlevel 1 (
     echo.
     echo  [ERROR] Failed to extract yuzu.zip
     echo  Requires Windows 10 build 17063 or later.
     pause & exit /b 1
 )
+xcopy /e /i /y "%TEMP_DIR%\yuzu\*" "%YUZU_DIR%"
 
 :: Extract Firmware
 echo  [5/7] Installing firmware...
-tar -xf "%TEMP_DIR%\firmware.zip" -C "%FIRMWARE_DIR%"
+tar -xf "%TEMP_DIR%\firmware.zip" -C "%TEMP_DIR%"
 if errorlevel 1 (
     echo.
     echo  [ERROR] Failed to extract firmware.zip
     pause & exit /b 1
 )
+xcopy /e /i /y "%TEMP_DIR%\firmware\*" "%FIRMWARE_DIR%"
 
 :: Cleanup
 echo  [6/7] Cleaning up...
